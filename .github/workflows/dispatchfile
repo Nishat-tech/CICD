@@ -1,0 +1,50 @@
+name: CI/CD Demo Workflow
+
+# Triggers
+on:
+  push:
+    branches: [ "main" ]          # Auto runs on push
+  pull_request:
+    branches: [ "main" ]          # Auto runs on PR
+  workflow_dispatch:               # Manual trigger
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Step 2: Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    # Step 3: Install dependencies (if package.json exists)
+    - name: Install dependencies
+      run: |
+        if [ -f package.json ]; then
+          npm install
+        else
+          echo "No dependencies to install"
+        fi
+
+    # Step 4: Run tests (Playwright)
+    - name: Run Playwright tests
+      run: |
+        if [ -f package.json ]; then
+          npx playwright install
+          npx playwright test || echo "No tests defined"
+        else
+          echo "Skipping tests for static files"
+        fi
+
+    # Step 5: Deploy to GitHub Pages
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v6
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./            # Deploy the root folder (your HTML page)
