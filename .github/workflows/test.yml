@@ -1,11 +1,10 @@
 name: Auto Sync CI/CD Workflow
 
-# Auto-sync triggers: run on push or pull request to main
 on:
   push:
-    branches: [ "main" ]          # Automatically runs when you push to main
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]          # Automatically runs on PR targeting main
+    branches: [ "main" ]
 
 jobs:
   build-test-deploy:
@@ -16,7 +15,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Step 2: Set up Node.js (for JS/Playwright tests)
+    # Step 2: Set up Node.js
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
@@ -46,4 +45,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@v6
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./             # Deploy the root folder (HTML/CSS)
+        publish_dir: ./    # Deploy the root folder
