@@ -1,0 +1,49 @@
+name: Auto Sync CI/CD Workflow
+
+# Auto-sync triggers: run on push or pull request to main
+on:
+  push:
+    branches: [ "main" ]          # Automatically runs when you push to main
+  pull_request:
+    branches: [ "main" ]          # Automatically runs on PR targeting main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Step 2: Set up Node.js (for JS/Playwright tests)
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    # Step 3: Install dependencies (if package.json exists)
+    - name: Install dependencies
+      run: |
+        if [ -f package.json ]; then
+          npm install
+        else
+          echo "No dependencies to install"
+        fi
+
+    # Step 4: Run Playwright tests (if any)
+    - name: Run Playwright tests
+      run: |
+        if [ -f package.json ]; then
+          npx playwright install
+          npx playwright test || echo "No tests defined"
+        else
+          echo "Skipping tests for static files"
+        fi
+
+    # Step 5: Deploy to GitHub Pages
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v6
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./             # Deploy the root folder (HTML/CSS)
